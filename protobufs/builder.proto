@@ -1,0 +1,94 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+
+enum BuildType {
+    BUILD_TYPE_UNSPECIFIED = 0;
+    BUILD_TYPE_CONTAINER = 1;
+}
+
+enum BuildStatus {
+    BUILD_STATUS_UNSPECIFIED = 0;
+    BUILD_STATUS_STARTING = 1;
+    BUILD_STATUS_STARTED = 2;
+    BUILD_STATUS_IN_PROGRESS = 3;
+    BUILD_STATUS_PAUSED = 4;
+    BUILD_STATUS_CANCELLED = 5;
+    BUILD_STATUS_COMPLETED = 6;
+    BUILD_STATUS_FAILURE = 7;
+}
+
+message ContainerImage {
+    string repository = 1;
+    string tag = 2;
+}
+
+message Scripts {
+    // Run before the Python packages in your project’s requirements.txt are installed or everytime it starts.
+    string startup_script = 1;
+    // Run after the requirements.txt or dependencies installation process is completed.
+    string post_startup_script = 2;
+    // Run right after post-setup scripts.
+    string pre_run_script = 3;
+    // Run before shutting down environment.
+    string shutdown_script = 4;
+    // Defines how scripts behaves.
+    enum ScriptsBehavior {
+        SCRIPTS_BEHAVIOR_UNSPECIFIED = 0;
+        SCRIPTS_BEHAVIOR_EVERY_START = 1;
+        SCRIPTS_BEHAVIOR_AFTER_INSTALLATION = 2;
+    }
+    ScriptsBehavior scripts_behavior = 5;
+
+}
+
+message Project {
+    string uuid = 1;
+
+}
+
+message Environment {
+    string uuid = 1;
+    Project project = 2;
+    string name = 3;
+    string owner = 4;
+    enum BaseEnvironment {
+        DOCKER = 0;
+    }
+    BaseEnvironment base_environment = 5;
+    ContainerImage container_image = 6;
+    repeated Build build_history = 7;
+}
+
+message Build {
+    int32 version = 1;
+    BuildType build_type = 2;
+    BuildStatus build_status = 3;
+    string build_information = 4;
+    string sha1 = 5;
+    string log_location = 6;
+    ContainerImage container_image = 7;
+    google.protobuf.Timestamp creation_time = 8;
+    google.protobuf.Timestamp update_time = 9;
+}
+
+message BuildParams {
+    Scripts scripts = 1;
+    map<string, string> env_variables = 2;
+    int32 max_build_timeout = 3;
+}
+
+message BuildEnvironmentRequest {
+    int32 user_id = 1;
+    Environment environment = 2;
+    BuildParams build_params = 3;
+}
+
+message BuildEnvironmentResponse {
+    Build build = 1;
+}
+
+service Builder {
+    rpc BuildEnvironment (BuildEnvironmentRequest) returns (BuildEnvironmentResponse);
+}
