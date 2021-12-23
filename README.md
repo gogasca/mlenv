@@ -36,6 +36,12 @@ build_params = BuildParams(scripts=scripts, max_build_timeout=90)
 request = BuildEnvironmentRequest(user_id=1, environment=env, build_params=build_params)
 ```
 
+Start Server
+
+```commandline
+python3 builds.py
+```
+
 Send Request
 
 ```python
