@@ -1,0 +1,182 @@
+--------------------------------------------------------------------------- REMOTE BUILD OUTPUT ----------------------------------------------------------------------------
+starting build "346a585c-591d-45b7-8451-4cfaf3a195c1"
+
+FETCHSOURCE
+Fetching storage object: gs://news-ml-257304_cloudbuild/source/1640509947.937432-9ec1cfbc8b464e20847a747824580d42.tgz#1640509948608271
+Copying gs://news-ml-257304_cloudbuild/source/1640509947.937432-9ec1cfbc8b464e20847a747824580d42.tgz#1640509948608271...
+/ [0 files][    0.0 B/  1.7 KiB]                                                / [1 files][  1.7 KiB/  1.7 KiB]                                                
+Operation completed over 1 objects/1.7 KiB.
+BUILD
+Starting Step #0
+Step #0: Already have image (with digest): gcr.io/cloud-builders/docker
+Step #0: Sending build context to Docker daemon  8.704kB
+Step #0: Step 1/4 : FROM gcr.io/deeplearning-platform-release/tf-cpu
+Step #0: latest: Pulling from deeplearning-platform-release/tf-cpu
+Step #0: 7b1a6ab2e44d: Already exists
+Step #0: afe6e63412ab: Pulling fs layer
+Step #0: 5b73234eab2e: Pulling fs layer
+Step #0: 1685de22cc18: Pulling fs layer
+Step #0: 4f4fb700ef54: Pulling fs layer
+Step #0: b47909ca4b31: Pulling fs layer
+Step #0: 17bb6932867c: Pulling fs layer
+Step #0: 334ec3463b8d: Pulling fs layer
+Step #0: 9832ea45781a: Pulling fs layer
+Step #0: 6dd58a1feee0: Pulling fs layer
+Step #0: 4eba552f6461: Pulling fs layer
+Step #0: 318bfd6f44e9: Pulling fs layer
+Step #0: f68af1a5c61b: Pulling fs layer
+Step #0: 005c6ce38bc0: Pulling fs layer
+Step #0: f70512a0e436: Pulling fs layer
+Step #0: 63c5da3a0938: Pulling fs layer
+Step #0: 9472b6634b44: Pulling fs layer
+Step #0: b1597f84c66d: Pulling fs layer
+Step #0: 71a99e198012: Pulling fs layer
+Step #0: 4f4fb700ef54: Waiting
+Step #0: b47909ca4b31: Waiting
+Step #0: 17bb6932867c: Waiting
+Step #0: 334ec3463b8d: Waiting
+Step #0: 9832ea45781a: Waiting
+Step #0: 6dd58a1feee0: Waiting
+Step #0: 4eba552f6461: Waiting
+Step #0: 318bfd6f44e9: Waiting
+Step #0: f68af1a5c61b: Waiting
+Step #0: 005c6ce38bc0: Waiting
+Step #0: f70512a0e436: Waiting
+Step #0: 63c5da3a0938: Waiting
+Step #0: 9472b6634b44: Waiting
+Step #0: b1597f84c66d: Waiting
+Step #0: 71a99e198012: Waiting
+Step #0: afe6e63412ab: Verifying Checksum
+Step #0: afe6e63412ab: Download complete
+Step #0: 4f4fb700ef54: Verifying Checksum
+Step #0: 4f4fb700ef54: Download complete
+Step #0: afe6e63412ab: Pull complete
+Step #0: b47909ca4b31: Verifying Checksum
+Step #0: b47909ca4b31: Download complete
+Step #0: 1685de22cc18: Verifying Checksum
+Step #0: 1685de22cc18: Download complete
+Step #0: 334ec3463b8d: Verifying Checksum
+Step #0: 334ec3463b8d: Download complete
+Step #0: 17bb6932867c: Verifying Checksum
+Step #0: 17bb6932867c: Download complete
+Step #0: 9832ea45781a: Verifying Checksum
+Step #0: 9832ea45781a: Download complete
+Step #0: 6dd58a1feee0: Verifying Checksum
+Step #0: 6dd58a1feee0: Download complete
+Step #0: 4eba552f6461: Verifying Checksum
+Step #0: 4eba552f6461: Download complete
+Step #0: 318bfd6f44e9: Verifying Checksum
+Step #0: 318bfd6f44e9: Download complete
+Step #0: f68af1a5c61b: Verifying Checksum
+Step #0: f68af1a5c61b: Download complete
+Step #0: f70512a0e436: Verifying Checksum
+Step #0: f70512a0e436: Download complete
+Step #0: 005c6ce38bc0: Verifying Checksum
+Step #0: 005c6ce38bc0: Download complete
+Step #0: 63c5da3a0938: Verifying Checksum
+Step #0: 63c5da3a0938: Download complete
+Step #0: 5b73234eab2e: Download complete
+Step #0: 71a99e198012: Verifying Checksum
+Step #0: 71a99e198012: Download complete
+Step #0: b1597f84c66d: Verifying Checksum
+Step #0: b1597f84c66d: Download complete
+Step #0: 9472b6634b44: Verifying Checksum
+Step #0: 9472b6634b44: Download complete
+Step #0: 5b73234eab2e: Pull complete
+Step #0: 1685de22cc18: Pull complete
+Step #0: 4f4fb700ef54: Pull complete
+Step #0: b47909ca4b31: Pull complete
+Step #0: 17bb6932867c: Pull complete
+Step #0: 334ec3463b8d: Pull complete
+Step #0: 9832ea45781a: Pull complete
+Step #0: 6dd58a1feee0: Pull complete
+Step #0: 4eba552f6461: Pull complete
+Step #0: 318bfd6f44e9: Pull complete
+Step #0: f68af1a5c61b: Pull complete
+Step #0: 005c6ce38bc0: Pull complete
+Step #0: f70512a0e436: Pull complete
+Step #0: 63c5da3a0938: Pull complete
+Step #0: 9472b6634b44: Pull complete
+Step #0: b1597f84c66d: Pull complete
+Step #0: 71a99e198012: Pull complete
+Step #0: Digest: sha256:0e5f9d6fb3e5a6c0e1b921f8a75998fac13f09b99b66189ba1826fef05ae4b2e
+Step #0: Status: Downloaded newer image for gcr.io/deeplearning-platform-release/tf-cpu:latest
+Step #0:  ---> d1c7c76b0056
+Step #0: Step 2/4 : USER root
+Step #0:  ---> Running in 63311b097390
+Step #0: Removing intermediate container 63311b097390
+Step #0:  ---> 9f0da5d3004a
+Step #0: Step 3/4 : COPY installer.sh /tmp/installer.sh
+Step #0:  ---> 39b938321b0d
+Step #0: Step 4/4 : EXPOSE 8080
+Step #0:  ---> Running in 75bb9e080747
+Step #0: Removing intermediate container 75bb9e080747
+Step #0:  ---> 8b800ca96d20
+Step #0: Successfully built 8b800ca96d20
+Step #0: Successfully tagged us-central1-docker.pkg.dev/news-ml-257304/mlenv/jupyter:v1
+Finished Step #0
+Starting Step #1
+Step #1: Already have image (with digest): gcr.io/cloud-builders/docker
+Step #1: The push refers to repository [us-central1-docker.pkg.dev/news-ml-257304/mlenv/jupyter]
+Step #1: 091555091b8e: Preparing
+Step #1: e51440cd5d34: Preparing
+Step #1: 542a282565f8: Preparing
+Step #1: b47cfac016f6: Preparing
+Step #1: 8a3424f475cb: Preparing
+Step #1: 79de2e7105e3: Preparing
+Step #1: 80fbf1f9de72: Preparing
+Step #1: 95dd9c08140a: Preparing
+Step #1: c77c6b1c9a72: Preparing
+Step #1: eb2e1edb9042: Preparing
+Step #1: 321c7ad58201: Preparing
+Step #1: 3976e9ae051e: Preparing
+Step #1: 62aa5e865341: Preparing
+Step #1: 0d7828e68dda: Preparing
+Step #1: ce1f2b34baf7: Preparing
+Step #1: 5f70bf18a086: Preparing
+Step #1: 14f43fe5fb59: Preparing
+Step #1: 2ac22cf101f4: Preparing
+Step #1: 104b9a8c66b0: Preparing
+Step #1: 9f54eef41275: Preparing
+Step #1: 321c7ad58201: Waiting
+Step #1: 3976e9ae051e: Waiting
+Step #1: 62aa5e865341: Waiting
+Step #1: 0d7828e68dda: Waiting
+Step #1: ce1f2b34baf7: Waiting
+Step #1: 5f70bf18a086: Waiting
+Step #1: 14f43fe5fb59: Waiting
+Step #1: 2ac22cf101f4: Waiting
+Step #1: 104b9a8c66b0: Waiting
+Step #1: 9f54eef41275: Waiting
+Step #1: 79de2e7105e3: Waiting
+Step #1: 80fbf1f9de72: Waiting
+Step #1: 95dd9c08140a: Waiting
+Step #1: c77c6b1c9a72: Waiting
+Step #1: eb2e1edb9042: Waiting
+Step #1: e51440cd5d34: Layer already exists
+Step #1: b47cfac016f6: Layer already exists
+Step #1: 542a282565f8: Layer already exists
+Step #1: 8a3424f475cb: Layer already exists
+Step #1: 79de2e7105e3: Layer already exists
+Step #1: 80fbf1f9de72: Layer already exists
+Step #1: 95dd9c08140a: Layer already exists
+Step #1: c77c6b1c9a72: Layer already exists
+Step #1: 321c7ad58201: Layer already exists
+Step #1: eb2e1edb9042: Layer already exists
+Step #1: 3976e9ae051e: Layer already exists
+Step #1: 62aa5e865341: Layer already exists
+Step #1: 0d7828e68dda: Layer already exists
+Step #1: ce1f2b34baf7: Layer already exists
+Step #1: 5f70bf18a086: Layer already exists
+Step #1: 14f43fe5fb59: Layer already exists
+Step #1: 091555091b8e: Pushed
+Step #1: 2ac22cf101f4: Layer already exists
+Step #1: 104b9a8c66b0: Layer already exists
+Step #1: 9f54eef41275: Layer already exists
+Step #1: v1: digest: sha256:1450a24962267b3a010e97abfbd430fadf580d9b64cfec07470da1cfc48de50d size: 4500
+Finished Step #1
+PUSH
+DONE
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ID                                    CREATE_TIME                DURATION  SOURCE                                                                                        IMAGES  STATUS
+346a585c-591d-45b7-8451-4cfaf3a195c1  2021-12-26T09:12:28+00:00  2M3S      gs://news-ml-257304_cloudbuild/source/1640509947.937432-9ec1cfbc8b464e20847a747824580d42.tgz  -       SUCCESS
