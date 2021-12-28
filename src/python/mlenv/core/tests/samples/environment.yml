@@ -1,0 +1,10 @@
+name: example
+dependencies:
+ - jupyterlab=1.0
+ - matplotlib=3.1
+ - pandas=0.24
+ - scikit-learn=0.21
+ - pip=19.1
+ - pip:
+   - kaggle==1.5
+   - yellowbrick==0.9

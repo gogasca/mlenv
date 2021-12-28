@@ -56,7 +56,13 @@ scripts = Scripts(startup_script="gs://mybucket/script1.sh")
 build_params = BuildParams(scripts=scripts, max_build_timeout=90)
 
 request = BuildEnvironmentRequest(user_id=1, environment=env, build_params=build_params)
-
-
-
 ```
+
+Build Flow
+
+1. User sends authenticated API request
+2. Create a new Environment
+3. Sends a Build request for Environment. Build request includes:
+ - Container
+ - requirements.txt file
+ - Conda environment

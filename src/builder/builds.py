@@ -6,12 +6,9 @@ import grpc
 from builder_pb2 import (
     ContainerImage,
     Build,
-    Environment,
-    BuildParams,
     BuildType,
     BuildStatus,
     BuildEnvironmentResponse,
-    Scripts,
 )
 import builder_pb2_grpc
 

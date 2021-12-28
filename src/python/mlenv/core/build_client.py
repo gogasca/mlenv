@@ -1,19 +1,29 @@
 """Google Cloud Build client."""
 
-import os
+import logging
 import google.auth
+import utils
+
 from google.protobuf import duration_pb2
 from google.cloud.devtools import cloudbuild_v1
 
-CONTAINER_NAME = "us-central1-docker.pkg.dev/news-ml-257304/mlenv/jupyter:v1"
+_BUILD_BUCKET = "news-ml-dev"
+_CONTAINER_NAME = "us-central1-docker.pkg.dev/news-ml-257304/mlenv/jupyter:v1"
 _BUILD_TIMEOUT = 900
 
 
-def build_steps(container_name, timeout=600):
+def get_client():
     """Authenticates with local credentials."""
+    _, project_id = google.auth.default()
+    client = cloudbuild_v1.services.cloud_build.CloudBuildClient()
+    return project_id, client
+
+
+def build_steps(container_name, timeout=600):
+    """Build steps to be executed by Google Cloud Build."""
     if not container_name:
         raise ValueError("Invalid container name")
-    print('Building container: {} Timeout: {} seconds'.format(container_name, timeout))
+    logging.info('Building container: {} Timeout: {} seconds'.format(container_name, timeout))
     duration = duration_pb2.Duration()
     duration.seconds = timeout
     steps = [
@@ -32,25 +42,27 @@ def build_steps(container_name, timeout=600):
     return steps
 
 
-def get_client():
-    _, project_id = google.auth.default()
-    client = cloudbuild_v1.services.cloud_build.CloudBuildClient()
-    return project_id, client
+def build_storage_source(bucket, object_):
+    """Create a .tgz file which includes Dockerfile and dependencies. Upload it to GCS bucket"""
+
+    storage_source = cloudbuild_v1.StorageSource(
+        {
+            "bucket": bucket,
+            "object_": object_
+        }
+    )
+    return storage_source
 
 
-def build_request():
+def build_request(bucket, object_):
     """Create and execute a simple Google Cloud Build configuration,
     print the in-progress status and print the completed status."""
 
     # Authorize the client with Google defaults
     project_id, client = get_client()
     build = cloudbuild_v1.Build()
-    storage_source = cloudbuild_v1.StorageSource(
-        {
-            "bucket": "news-ml-257304_cloudbuild",
-            "object_": "source/1640509283.923616-66b513c5411242b39834793db6f5e481.tgz"
-        }
-    )
+    print("Build request {} {} {}".format(project_id, bucket, object_))
+    storage_source = build_storage_source(bucket, object_)
     # The following build steps will output "hello world"
     # For more information on build configuration, see
     # https://cloud.google.com/build/docs/configuring-builds/create-basic-configuration
@@ -59,23 +71,21 @@ def build_request():
             "storage_source": storage_source,
         }
     )
-    build.steps = build_steps(container_name=CONTAINER_NAME, timeout=600)
+    build.steps = build_steps(container_name=_CONTAINER_NAME, timeout=600)
     operation = client.create_build(project_id=project_id, build=build, timeout=_BUILD_TIMEOUT)
     # Print the in-progress operation
     print("IN PROGRESS:")
-    print(operation.metadata)
+    logging.info(operation.metadata)
 
     result = operation.result()
     # Print the completed status
     print("RESULT:", result.status)
 
 
-def verify_file_structure():
-    cwd = os.getcwd()
-    print(cwd)
-    print(os.listdir("."))
-
-
 if __name__ == "__main__":
-    verify_file_structure()
-    build_request()
+    tmp_file = utils.generate_random_build_filename()
+    utils.compress_folder_to_tgz(
+        "/Users/gogasca/Documents/Development/swe/mlenv/src/python/mlenv/core/tests/samples", tmp_file)
+    utils.copy_local_file_to_bucket(tmp_file, _BUILD_BUCKET, "builds")
+    remote_path = utils.remote_build_path("builds", tmp_file) # Example: "source/1640509283.923616-66b513c5.tgz"
+    build_request(_BUILD_BUCKET, remote_path)
