@@ -2,7 +2,7 @@
 
 import logging
 import google.auth
-import utils
+from . import fileutils
 
 from google.protobuf import duration_pb2
 from google.cloud.devtools import cloudbuild_v1
@@ -74,18 +74,22 @@ def build_request(bucket, object_):
     build.steps = build_steps(container_name=_CONTAINER_NAME, timeout=600)
     operation = client.create_build(project_id=project_id, build=build, timeout=_BUILD_TIMEOUT)
     # Print the in-progress operation
+    return operation
+
+"""
     print("IN PROGRESS:")
     logging.info(operation.metadata)
 
     result = operation.result()
     # Print the completed status
     print("RESULT:", result.status)
-
+    
+"""
 
 if __name__ == "__main__":
-    tmp_file = utils.generate_random_build_filename()
-    utils.compress_folder_to_tgz(
+    tmp_file = fileutils.generate_random_build_filename()
+    fileutils.compress_folder_to_tgz(
         "/Users/gogasca/Documents/Development/swe/mlenv/src/python/mlenv/core/tests/samples", tmp_file)
-    utils.copy_local_file_to_bucket(tmp_file, _BUILD_BUCKET, "builds")
-    remote_path = utils.remote_build_path("builds", tmp_file) # Example: "source/1640509283.923616-66b513c5.tgz"
+    fileutils.copy_local_file_to_bucket(tmp_file, _BUILD_BUCKET, "builds")
+    remote_path = fileutils.remote_build_path("builds", tmp_file) # Example: "source/1640509283.923616-66b513c5.tgz"
     build_request(_BUILD_BUCKET, remote_path)

@@ -13,7 +13,6 @@ logging.basicConfig(level=logging.INFO)
 
 _NUM_OF_RETRIES = 3
 
-
 def display_file_structure():
     print(os.getcwd())
     print(os.listdir("."))

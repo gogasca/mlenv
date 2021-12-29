@@ -20,16 +20,16 @@ class DockerConfig(object):
     Usage examples:
     **1. All defaults.**
     ```python
-    tfc.DockerConfig()
+    mle.DockerConfig()
     ```
     Use this configuration when you have a local Docker process and are
-    experimenting with `tfc.run()`.
+    experimenting with `mle.run()`.
     A new Docker image will be built using the `local` Docker daemon with a
     newly generated `image` URI, and TensorFlow Docker image will be used as the
     `parent_image`. There will be no Docker cache used here.
     **2. With `parent_image`.**
     ```python
-    tfc.DockerConfig(parent_image="tensorflow/tensorflow:latest-gpu")
+    mle.DockerConfig(parent_image="tensorflow/tensorflow:latest-gpu")
     ```
     Use this configuration when you want to use your own custom docker image,
     which contains TensorFlow, as the parent Docker image. This can be combined
@@ -39,17 +39,17 @@ class DockerConfig(object):
     parent image. There will be no cache used.
     **3. With `cache_from`.**
     ```python
-    tfc.DockerConfig(cache_from="gcr.io/test-project/tf_cloud_train:01")
+    mle.DockerConfig(cache_from="gcr.io/test-project/tf_cloud_train:01")
     ```
     Using `cache_from` will speed up the docker build process. Use this when you
-    want to build a new image in the `tfc.run` call but want to start from an
+    want to build a new image in the `mle.run` call but want to start from an
     existing image. This can be combined with the other parameters as required.
     A new Docker image will be built using the `local` Docker daemon with a
     newly generated `image` URI, TensorFlow Docker image will be used as the
     `parent_image`. `cache_from` will be used as the Docker cache image.
     **4. With `image_build_bucket`.**
     ```python
-    tfc.DockerConfig(image_build_bucket="test-gcs-bucket")
+    mle.DockerConfig(image_build_bucket="test-gcs-bucket")
     ```
     Use this configuration if you do not have a local docker installation.
     A new Docker image will be built using the
@@ -58,7 +58,7 @@ class DockerConfig(object):
     `parent_image`. There will be no cache used.
     **5. With `image`.**
     ```python
-    tfc.DockerConfig(
+    mle.DockerConfig(
         parent_image="tensorflow/tensorflow:latest-gpu",
         image="gcr.io/test-project/tf_cloud_train:01",
         image_build_bucket="test-gcs-bucket")
@@ -66,13 +66,13 @@ class DockerConfig(object):
     Use this configuration when you want to provide a custom image URI for the
     Docker image created. Note that if you have not provided `cache_from`
     parameter explicitly, then this `image` will also be used as the cache
-    image. This is useful when you have called `tfc.run` once and received
+    image. This is useful when you have called `mle.run` once and received
     an image URI, you can iteratively cache from and rebuild the same image
     using this parameter. This can be combined with the other parameters as
     required.
     6. All custom values.
     ```python
-    tfc.DockerConfig(
+    mle.DockerConfig(
         parent_image="tensorflow/tensorflow:latest-gpu",
         image="gcr.io/test-project/tf_cloud_train:02",
         image_build_bucket="test-gcs-bucket",

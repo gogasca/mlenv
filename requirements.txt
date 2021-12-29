@@ -1,3 +1,5 @@
 google-cloud-build
 google-cloud-storage
 grpcio-tools ~= 1.30
+requests~=2.22.0
+absl-py
