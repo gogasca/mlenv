@@ -11,6 +11,7 @@ import time
 import uuid
 
 from . import gcp
+from . import build_client
 
 from google.cloud import storage
 from google.cloud.exceptions import NotFound
@@ -280,11 +281,11 @@ class CloudContainerBuilder(ContainerBuilder):
         logger.info(
             "Building and publishing Docker image using Google Cloud Build: %s",
             image_uri)
+
         build_service = discovery.build(
             "cloudbuild",
             "v1",
             cache_discovery=False,
-            requestBuilder=google_api_client.TFCloudHttpRequest,
         )
         request_dict = self._create_cloud_build_request_dict(
             image_uri,

@@ -7,6 +7,7 @@ import sys
 
 from . import containerize
 from . import docker_config as docker_config_module
+from . import validate
 from ..utils import google_api_client
 
 logger = logging.getLogger(__name__)
@@ -16,6 +17,7 @@ def create(
     entry_point=None,
     requirements_txt=None,
     docker_config="auto",
+    entry_point_args=None,
     **kwargs
 ):
     """Create your environment in Google Cloud Platform.
@@ -46,6 +48,8 @@ def create(
                 [Google Cloud Build](https://cloud.google.com/cloud-build/).
             Defaults to 'auto'. 'auto' maps to a default `tfc.DockerConfig`
             instance.
+        entry_point_args: Optional list of strings. Defaults to None.
+            Command line arguments to pass to the `entry_point` program.
         **kwargs: Additional keyword arguments.
     Returns:
         A dictionary with two keys.'job_id' - the training job id and
@@ -78,6 +82,14 @@ def create(
 
     # Run validations.
     print("Validating environment and input parameters.")
+    validate.validate(
+        entry_point,
+        requirements_txt,
+        entry_point_args,
+        docker_config.image_build_bucket,
+        called_from_notebook,
+        docker_parent_image=docker_config.parent_image,
+    )
     print("Validation was successful.")
 
     # Make the `entry_point` cloud and distribution ready.
