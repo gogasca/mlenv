@@ -11,7 +11,6 @@ import time
 import uuid
 
 from . import gcp
-from . import build_client
 
 from google.cloud import storage
 from google.cloud.exceptions import NotFound
@@ -114,8 +113,6 @@ class ContainerBuilder(object):
         file_path_map = self._get_file_path_map()
 
         self.tar_file_descriptor, self.tar_file_path = tempfile.mkstemp()
-        print("Tar file path: {}".format(self.tar_file_path))
-        print("file_path_map: ".format(file_path_map.items()))
         with tarfile.open(self.tar_file_path, "w:gz", dereference=True) as tar:
             for source, destination in file_path_map.items():
                 print(source, destination)
@@ -169,8 +166,7 @@ class ContainerBuilder(object):
                 "fi".format(requirements_txt=dst_requirements_txt)
             )
         if self.entry_point is None:
-            print("No entry_point defined")
-            sys.exit(1)
+            warnings.warn("entry_point is None")
 
         # Copies the files from the `destination_dir` in Docker daemon location
         # to the `destination_dir` in Docker container filesystem.
@@ -213,6 +209,7 @@ class ContainerBuilder(object):
 
     def _get_file_path_map(self):
         """Maps local file paths to the Docker daemon process location.
+
         Dictionary mapping file paths in the local file system to the paths
         in the Docker daemon process location. The `key` or source is the path
         of the file that will be used when creating the archive. The `value`
@@ -230,7 +227,7 @@ class ContainerBuilder(object):
         if not self.called_from_notebook or self.entry_point is not None:
             entry_point_dir, _ = os.path.split(self.entry_point)
             if not entry_point_dir:  # Current directory
-                entry_point_dir = ""
+                entry_point_dir = "."
             location_map[entry_point_dir] = self.destination_dir
 
         # Place preprocessed_entry_point in the dst directory.
@@ -255,7 +252,7 @@ class ContainerBuilder(object):
 
 
 class CloudContainerBuilder(ContainerBuilder):
-    """Container builder that uses Google cloud build."""
+    """Container builder that uses Google Cloud Build."""
 
     def get_docker_image(
         self, max_status_check_attempts=40, delay_between_status_checks=30
@@ -267,7 +264,7 @@ class CloudContainerBuilder(ContainerBuilder):
             delay_between_status_checks: Time is seconds to wait between status
                 checks.
         Returns:
-            URI in a registory where the Docker image has been built and pushed.
+            URI in a registry where the Docker image has been built and pushed.
         """
         self._get_tar_file_path()
         storage_object_name = self._upload_tar_to_gcs()
@@ -355,7 +352,7 @@ class CloudContainerBuilder(ContainerBuilder):
                 self.docker_config.image_build_bucket)
 
         unique_tag = str(uuid.uuid4()).replace("-", "_")
-        storage_object_name = "tf_cloud_train_tar_{}".format(unique_tag)
+        storage_object_name = "mlenv_tar_{}".format(unique_tag)
 
         blob = bucket.blob(storage_object_name)
         blob.upload_from_filename(self.tar_file_path)

@@ -2,7 +2,8 @@
 
 import logging
 import google.auth
-from . import fileutils
+
+from src.python.mlenv_cloud.utils import gcs
 
 from google.protobuf import duration_pb2
 from google.cloud.devtools import cloudbuild_v1
@@ -87,9 +88,9 @@ def build_request(bucket, object_):
 """
 
 if __name__ == "__main__":
-    tmp_file = fileutils.generate_random_build_filename()
-    fileutils.compress_folder_to_tgz(
+    tmp_file = gcs.generate_random_build_filename()
+    gcs.compress_folder_to_tgz(
         "/Users/gogasca/Documents/Development/swe/mlenv/src/python/mlenv/core/tests/samples", tmp_file)
-    fileutils.copy_local_file_to_bucket(tmp_file, _BUILD_BUCKET, "builds")
-    remote_path = fileutils.remote_build_path("builds", tmp_file) # Example: "source/1640509283.923616-66b513c5.tgz"
+    gcs.copy_local_file_to_bucket(tmp_file, _BUILD_BUCKET, "builds")
+    remote_path = gcs.remote_build_path("builds", tmp_file) # Example: "source/1640509283.923616-66b513c5.tgz"
     build_request(_BUILD_BUCKET, remote_path)

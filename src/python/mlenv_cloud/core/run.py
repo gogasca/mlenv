@@ -4,21 +4,26 @@ import logging
 import os
 import sys
 
-
 from . import containerize
 from . import docker_config as docker_config_module
 from . import validate
+from . import preprocess
 from ..utils import google_api_client
 
 logger = logging.getLogger(__name__)
 
 
+def remote():
+    """True when code is run in a remote cloud environment."""
+    return bool(os.environ.get("MLENV_RUNNING_REMOTELY"))
+
+
 def create(
-    entry_point=None,
-    requirements_txt=None,
-    docker_config="auto",
-    entry_point_args=None,
-    **kwargs
+        entry_point=None,
+        requirements_txt=None,
+        docker_config="auto",
+        entry_point_args=None,
+        **kwargs
 ):
     """Create your environment in Google Cloud Platform.
     Args:
@@ -55,16 +60,22 @@ def create(
         A dictionary with two keys.'job_id' - the training job id and
         'docker_image'- Docker image generated for the training job.
     """
+    # If code is triggered in a cloud environment, do nothing.
+    # This is required for the use case when `run` is invoked from within
+    # a python script.
+    if remote():
+        return
+
     docker_base_image = kwargs.pop("docker_base_image", None)
     docker_image_bucket_name = kwargs.pop("docker_image_bucket_name", None)
 
     if kwargs:
         # We are using kwargs for forward compatibility in the cloud. For eg.,
         # if a new param is added to `run` API, this will not exist in the
-        # latest tensorflow-cloud package installed in the cloud Docker envs.
+        # latest mlenv package installed in the cloud Docker envs.
         # So, if `run` is used inside a python script or notebook, this python
         # code will fail to run in the cloud even before we can check
-        # `TF_KERAS_RUNNING_REMOTELY` env var because of an additional unknown
+        # `MLENV_RUNNING_REMOTELY` env var because of an additional unknown
         # param.
         raise TypeError("Unknown keyword arguments: %s" % (kwargs.keys(),))
 
@@ -92,14 +103,21 @@ def create(
     )
     print("Validation was successful.")
 
-    # Make the `entry_point` cloud and distribution ready.
+    # Make the `entry_point` cloud ready.
     # A temporary script called `preprocessed_entry_point` is created.
-    # This contains the `entry_point` wrapped in a distribution strategy.
+    # Make the `entry_point` cloud ready.
+    # A temporary script called `preprocessed_entry_point` is created.
     preprocessed_entry_point = None
+    if entry_point is None or entry_point.endswith("ipynb"):
+        preprocessed_entry_point, \
+        pep_file_descriptor = preprocess.get_preprocessed_entry_point(
+            entry_point,
+            called_from_notebook=called_from_notebook,
+            return_file_descriptor=True,
+        )
 
     # Create Docker file, generate a tarball, build and push Docker
     # image using the tarball.
-    print("Building and pushing the Docker image. This may take a few minutes.")
     cb_args = (
         entry_point,
         preprocessed_entry_point,
@@ -110,13 +128,16 @@ def create(
         "docker_config": docker_config,
         "called_from_notebook": called_from_notebook,
     }
-
+    print("Building and pushing the Docker image. This may take a few minutes. {} {}".format(cb_args, cb_kwargs))
     container_builder = containerize.CloudContainerBuilder(*cb_args, **cb_kwargs)
     docker_img_uri = container_builder.get_docker_image()
 
     # Delete all the temporary files we created.
+    if preprocessed_entry_point is not None:
+        os.close(pep_file_descriptor)
+        os.remove(preprocessed_entry_point)
     for file_path, file_descriptor in container_builder.get_generated_files(
-        return_descriptors=True):
+            return_descriptors=True):
         os.close(file_descriptor)
         os.remove(file_path)
 
@@ -133,8 +154,8 @@ def _called_from_notebook():
     """Detects if we are currently executing in a notebook environment."""
     client_env = google_api_client.get_client_environment_name()
     if client_env in (
-        google_api_client.ClientEnvironment.KAGGLE_NOTEBOOK.name,
-        google_api_client.ClientEnvironment.COLAB.name):
+            google_api_client.ClientEnvironment.KAGGLE_NOTEBOOK.name,
+            google_api_client.ClientEnvironment.COLAB.name):
         return True
     if client_env == google_api_client.ClientEnvironment.HOSTED_NOTEBOOK:
         logger.warning("Vertex AI notebook environment is not supported.")

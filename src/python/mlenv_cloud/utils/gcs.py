@@ -13,9 +13,10 @@ logging.basicConfig(level=logging.INFO)
 
 _NUM_OF_RETRIES = 3
 
+
 def display_file_structure():
     print(os.getcwd())
-    print(os.listdir("."))
+    print(os.listdir("../core"))
 
 
 def generate_random_build_filename():
