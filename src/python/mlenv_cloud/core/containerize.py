@@ -1,4 +1,5 @@
 """Builds a new Docker image from local Environment."""
+
 import logging
 import os
 import tarfile
@@ -17,7 +18,7 @@ from googleapiclient import discovery
 from googleapiclient import errors
 
 # https://hub.docker.com/_/python?tab=tags
-_BASE_VERSION="python:latest"
+_BASE_VERSION = "gcr.io/deeplearning-platform-release/base-cpu"
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -28,7 +29,7 @@ def generate_image_uri():
     # Keeping this name format uniform with the job id.
     unique_tag = str(uuid.uuid4()).replace("-", "_")
     docker_registry = "gcr.io/{}".format(gcp.get_project_name())
-    return "{}/{}:{}".format(docker_registry, "tf_cloud_train", unique_tag)
+    return "{}/{}:{}".format(docker_registry, "mlenv_cloud", unique_tag)
 
 
 class ContainerBuilder(object):
@@ -112,8 +113,11 @@ class ContainerBuilder(object):
         file_path_map = self._get_file_path_map()
 
         self.tar_file_descriptor, self.tar_file_path = tempfile.mkstemp()
+        print("Tar file path: {}".format(self.tar_file_path))
+        print("file_path_map: ".format(file_path_map.items()))
         with tarfile.open(self.tar_file_path, "w:gz", dereference=True) as tar:
             for source, destination in file_path_map.items():
+                print(source, destination)
                 tar.add(source, arcname=destination)
 
     def _get_docker_base_image(self):
@@ -124,14 +128,12 @@ class ContainerBuilder(object):
         if img:
             return img
 
-        # Use the latest TF docker image if a local installation is not
-        # available or if the docker image corresponding to the `tf_version`
-        # does not exist.
+        # Use the latest Deep Learning docker image if a local installation is not available.
         if not (img and self._image_exists(img)):
             warnings.warn("MLenv `run` API uses docker, with a base parent image {}".format(
                 _BASE_VERSION
             ))
-            new_img = "python:latest"
+            new_img = "gcr.io/deeplearning-platform-release/base-cpu"
             img = new_img
         return img
 
@@ -166,15 +168,20 @@ class ContainerBuilder(object):
                 "fi".format(requirements_txt=dst_requirements_txt)
             )
         if self.entry_point is None:
-            print("Install TensorFlow Cloud")
-            lines.append("RUN pip install tensorflow-cloud")
+            print("No entry_point defined")
+            sys.exit(1)
 
         # Copies the files from the `destination_dir` in Docker daemon location
         # to the `destination_dir` in Docker container filesystem.
-        lines.append("COPY {} {}".format(self.destination_dir,
-                                         self.destination_dir))
+        if self.destination_dir:
+            lines.append("COPY {} {}".format(self.destination_dir,
+                                             self.destination_dir))
 
         docker_entry_point = self.preprocessed_entry_point or self.entry_point
+        if docker_entry_point is None:
+            print("No Docker entry point")
+            sys.exit(1)
+
         _, docker_entry_point_file_name = os.path.split(docker_entry_point)
 
         # Using `ENTRYPOINT` here instead of `CMD` specifically because

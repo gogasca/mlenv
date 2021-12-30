@@ -1,30 +1,27 @@
-"""Module that contains the `run` API for scaling Keras/TensorFlow jobs."""
+"""Module that contains the `run` API for building environments."""
 
 import logging
 import os
 import sys
-import uuid
+
 
 from . import containerize
 from . import docker_config as docker_config_module
-from mlenv.utils import google_api_client
+from ..utils import google_api_client
 
 logger = logging.getLogger(__name__)
 
-def run(
+
+def create(
     entry_point=None,
     requirements_txt=None,
     docker_config="auto",
-    entry_point_args=None,
-    stream_logs=False,
-    job_labels=None,
-    service_account=None,
     **kwargs
 ):
-    """Runs your Tensorflow code in Google Cloud Platform.
+    """Create your environment in Google Cloud Platform.
     Args:
         entry_point: Optional string. File path to the python file or iPython
-            notebook that contains the TensorFlow code.
+            notebook that contains the code.
             Note this path must be in the current working directory tree.
             Example - 'train.py', 'training/mnist.py', 'mnist.ipynb'
             If `entry_point` is not provided, then
@@ -32,6 +29,7 @@ def run(
                 current notebook is taken as the `entry_point`.
             - Otherwise, the current python script is taken as the
                 `entry_point`.
+            Note: If you are using Python console, this will command will fail.
         requirements_txt: Optional string. File path to requirements.txt file
             containing additional pip dependencies if any. ie. a file with a
             list of pip dependency package names.
@@ -48,19 +46,6 @@ def run(
                 [Google Cloud Build](https://cloud.google.com/cloud-build/).
             Defaults to 'auto'. 'auto' maps to a default `tfc.DockerConfig`
             instance.
-        entry_point_args: Optional list of strings. Defaults to None.
-            Command line arguments to pass to the `entry_point` program.
-        stream_logs: Boolean flag which when enabled streams logs back from
-            the cloud job.
-        job_labels: Dict of str: str. Labels to organize jobs. You can specify
-            up to 64 key-value pairs in lowercase letters and numbers, where
-            the first character must be lowercase letter. For more details see
-            [resource-labels](
-            https://cloud.google.com/ai-platform/training/docs/resource-labels)
-        service_account: The email address of a user-managed service account
-            to be used for training instead of the service account that AI
-            Platform Training uses by default. see [custom-service-account](
-            https://cloud.google.com/ai-platform/training/docs/custom-service-account)
         **kwargs: Additional keyword arguments.
     Returns:
         A dictionary with two keys.'job_id' - the training job id and
@@ -113,12 +98,8 @@ def run(
         "docker_config": docker_config,
         "called_from_notebook": called_from_notebook,
     }
-    if docker_config.image_build_bucket is None:
-        container_builder = containerize.LocalContainerBuilder(
-            *cb_args, **cb_kwargs)
-    else:
-        container_builder = containerize.CloudContainerBuilder(
-            *cb_args, **cb_kwargs)
+
+    container_builder = containerize.CloudContainerBuilder(*cb_args, **cb_kwargs)
     docker_img_uri = container_builder.get_docker_image()
 
     # Delete all the temporary files we created.
@@ -126,12 +107,6 @@ def run(
         return_descriptors=True):
         os.close(file_descriptor)
         os.remove(file_path)
-
-    # Setting a unique default Tuner_ID to support kerasTuner and CloudTuner.
-    default_tuner_id = f"TUNER_ID_{uuid.uuid4().hex}"
-    exnteded_entry_point_args = [default_tuner_id]
-    if entry_point_args:
-        exnteded_entry_point_args.extend(entry_point_args)
 
     # Call `exit` to prevent training the Keras model in the local env.
     # To stop execution after encountering a `run` API call in local env.

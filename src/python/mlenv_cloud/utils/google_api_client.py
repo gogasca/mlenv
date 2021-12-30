@@ -1,16 +1,11 @@
 """Utilities for Google API client."""
 
 import enum
-import json
 import os
 import sys
-import time
-from typing import Dict, Text, Union
+from typing import Text, Union
 from .. import version
 from absl import logging
-from googleapiclient import discovery
-from googleapiclient import errors
-from googleapiclient import http as googleapiclient_http
 
 
 _TF_CLOUD_USER_AGENT_HEADER = "tf-cloud/" + version.__version__

@@ -66,3 +66,9 @@ Build Flow
  - Container
  - requirements.txt file
  - Conda environment
+
+MLEnv Library
+
+```
+python setup.py install
+```

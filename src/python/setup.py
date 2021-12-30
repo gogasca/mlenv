@@ -10,13 +10,13 @@ from setuptools import setup
 relative_directory = os.path.relpath(os.path.dirname(os.path.abspath(__file__)))
 loader = importlib.machinery.SourceFileLoader(
     fullname="version",
-    path=os.path.join(relative_directory, "mlenv/version.py"),
+    path=os.path.join(relative_directory, "mlenv_cloud/version.py"),
 )
 version = types.ModuleType(loader.name)
 loader.exec_module(version)
 
 setup(
-    name="mlenv",
+    name="mlenv-cloud",
     version=version.__version__,
     description="The MLEnv repository provides APIs that will allow "
     "to easily create Docker container using local dependencies",
@@ -46,7 +46,7 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     package_dir={
-        "mlenv": os.path.join(relative_directory, "mlenv")
+        "mlenv_cloud": os.path.join(relative_directory, "mlenv_cloud")
     },
     packages=find_packages(where=relative_directory),
 )
