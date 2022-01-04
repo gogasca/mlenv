@@ -31,7 +31,7 @@ def get_preprocessed_entry_point(
     called_from_notebook=False,
     return_file_descriptor=False
 ):
-    """Creates python script for distribution based on the given `entry_point`.
+    """Creates python script based on the given `entry_point`.
     This utility creates a new python script called `preprocessed_entry_point`
     based on the given `entry_point` input. This
     script will become the new Docker entry point python program.

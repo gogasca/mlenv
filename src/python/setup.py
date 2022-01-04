@@ -2,7 +2,6 @@
 import importlib
 import os
 import types
-import dependencies
 
 from setuptools import find_packages
 from setuptools import setup
@@ -24,9 +23,23 @@ setup(
     author="The MLEnv authors",
     author_email="gascagonzalo@gmail.com",
     license="Apache License 2.0",
-    extras_require={"tests": dependencies.make_required_test_packages()},
+    extras_require={"tests":[
+        "absl-py",
+        "flake8",
+        "mock",
+        "numpy",
+        "nbconvert",
+        "importlib_resources ; python_version<'3.7'"]
+    },
     include_package_data=True,
-    install_requires=dependencies.make_required_install_packages(),
+    install_requires=[
+        "absl-py",
+        "docker",
+        "google-api-python-client",
+        "google-auth",
+        "google-cloud-storage",
+        "importlib_resources ; python_version<'3.7'"
+    ],
     classifiers=[
         "Development Status :: 4 - Beta",
         "Operating System :: Unix",

@@ -3,6 +3,7 @@
 import logging
 import os
 import sys
+import warnings
 
 from . import containerize
 from . import docker_config as docker_config_module
@@ -68,6 +69,7 @@ def create(
 
     docker_base_image = kwargs.pop("docker_base_image", None)
     docker_image_bucket_name = kwargs.pop("docker_image_bucket_name", None)
+    docker_no_entry_point = kwargs.pop("docker_no_entry_point", None)
 
     if kwargs:
         # We are using kwargs for forward compatibility in the cloud. For eg.,
@@ -141,10 +143,10 @@ def create(
         os.close(file_descriptor)
         os.remove(file_path)
 
-    # Call `exit` to prevent training the Keras model in the local env.
+    # Call `exit` to prevent execution in the local env.
     # To stop execution after encountering a `run` API call in local env.
     if entry_point is None and not called_from_notebook:
-        sys.exit(0)
+        warnings.warn("No entry_point defined nor call from Notebook")
     return {
         "docker_image": docker_img_uri,
     }

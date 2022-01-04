@@ -19,8 +19,9 @@ This generates several Python files from the .proto file. Here’s a breakdown:
 ## The RPC Client
 The code that’s generated is something only a motherboard could love. That is to say, it’s not very pretty Python. This is because it’s not really meant to be read by humans. Open a Python shell to see how to interact with it:
 
-
 ```python
+import grpc
+from builder_pb2_grpc import BuilderStub
 from builder_pb2 import (
     ContainerImage, 
     Environment, 
@@ -28,34 +29,22 @@ from builder_pb2 import (
     BuildEnvironmentRequest, 
     Scripts
  )
+channel = grpc.insecure_channel("localhost:50051")
+client = BuilderStub(channel)
 
 container = ContainerImage(repository="gcr.io/deeplearning-platform-release/tf-cpu", tag="latest")
-env = Environment(id=1, name="env1", owner="gogasca", container_image=container)
-scripts = Scripts(startup_script="gs://mybucket/script1.sh") 
+env = Environment(uuid="deadbeef", name="env1", owner="gogasca", container_image=container)
+scripts = Scripts(startup_script="gs://mybucket/script1.sh")
 build_params = BuildParams(scripts=scripts, max_build_timeout=90)
+
 request = BuildEnvironmentRequest(user_id=1, environment=env, build_params=build_params)
+client.BuildEnvironment(request)
 ```
 
 Start Server
 
 ```commandline
 python3 builds.py
-```
-
-Send Request
-
-```python
-import grpc
-from builder_pb2_grpc import BuilderStub
-channel = grpc.insecure_channel("localhost:50051")
-client = BuilderStub(channel)
-
-container = ContainerImage(repository="gcr.io/deeplearning-platform-release/tf-cpu", tag="latest")
-env = Environment(id=1, name="env1", owner="gogasca", container_image=container)
-scripts = Scripts(startup_script="gs://mybucket/script1.sh") 
-build_params = BuildParams(scripts=scripts, max_build_timeout=90)
-
-request = BuildEnvironmentRequest(user_id=1, environment=env, build_params=build_params)
 ```
 
 Build Flow
@@ -69,6 +58,19 @@ Build Flow
 
 MLEnv Library
 
-```
+```shell
 python setup.py install
 ```
+
+Run MLenv library
+
+```python
+import mlenv_cloud as mle
+
+print(mle.__version__)
+
+mle.create(
+    docker_base_image="gcr.io/deeplearning-platform-release/tf-cpu",
+    docker_image_bucket_name="news-ml-257304_cloudbuild")
+```
+

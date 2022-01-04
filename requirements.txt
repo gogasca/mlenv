@@ -3,6 +3,6 @@ google-cloud-storage
 grpcio-tools ~= 1.30
 requests~=2.22.0
 absl-py
-mlenv~=0.1.dev0
 typing~=3.7.4.3
 setuptools~=57.4.0
+mlenv-cloud

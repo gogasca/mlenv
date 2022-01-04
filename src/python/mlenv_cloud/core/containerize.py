@@ -146,8 +146,12 @@ class ContainerBuilder(object):
 
         lines = [
             "FROM {}".format(parent_image),
-            "WORKDIR {}".format(self.destination_dir),
         ]
+
+        if self.destination_dir is not None:
+            lines.append(
+                "WORKDIR {}".format(self.destination_dir)
+            )
 
         if self.requirements_txt is not None:
             _, requirements_txt_name = os.path.split(self.requirements_txt)
@@ -165,8 +169,6 @@ class ContainerBuilder(object):
                 "then pip install --no-cache -r {requirements_txt}; "
                 "fi".format(requirements_txt=dst_requirements_txt)
             )
-        if self.entry_point is None:
-            warnings.warn("entry_point is None")
 
         # Copies the files from the `destination_dir` in Docker daemon location
         # to the `destination_dir` in Docker container filesystem.
@@ -175,17 +177,17 @@ class ContainerBuilder(object):
                                              self.destination_dir))
 
         docker_entry_point = self.preprocessed_entry_point or self.entry_point
-        if docker_entry_point is None:
-            print("No Docker entry point")
-            sys.exit(1)
+        if self.entry_point is None:
+            warnings.warn("entry_point is None")
 
-        _, docker_entry_point_file_name = os.path.split(docker_entry_point)
+        if docker_entry_point:
+            _, docker_entry_point_file_name = os.path.split(docker_entry_point)
 
-        # Using `ENTRYPOINT` here instead of `CMD` specifically because
-        # we want to support passing user code flags.
-        lines.extend(
-            ['ENTRYPOINT ["python", "{}"]'.format(docker_entry_point_file_name)]
-        )
+            # Using `ENTRYPOINT` here instead of `CMD` specifically because
+            # we want to support passing user code flags.
+            lines.extend(
+                ['ENTRYPOINT ["python", "{}"]'.format(docker_entry_point_file_name)]
+            )
 
         content = "\n".join(lines)
         self.docker_file_descriptor, self.docker_file_path = tempfile.mkstemp()

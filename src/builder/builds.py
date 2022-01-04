@@ -1,7 +1,7 @@
 """GRPC server."""
 from concurrent import futures
-import random
 import grpc
+import mlenv_cloud as mle
 
 from builder_pb2 import (
     ContainerImage,
@@ -16,10 +16,10 @@ build_type = BuildType.BUILD_TYPE_CONTAINER
 container = ContainerImage(repository="gcr.io/deeplearning-platform-release/tf-cpu", tag="latest")
 
 build_responses = [
-    Build(version=1, sha1="F49CF6381E322B147053B74E4500AF8533AC1E4C", build_type=build_type, build_status=BuildStatus.BUILD_STATUS_STARTING,
+    Build(version=1, sha1="F49CF6381E322B147053B74E4500AF8533AC1E4C", build_type=build_type, build_status=BuildStatus.BUILD_STATUS_PENDING,
           build_information="Starting",
           log_location="gs://mlenv/logs/env1.txt", container_image=container),
-    Build(version=2, sha1="BF5AFC18DFBCA6FF28E36AC47BDA8AB40D47C990", build_type=build_type, build_status=BuildStatus.BUILD_STATUS_COMPLETED,
+    Build(version=2, sha1="BF5AFC18DFBCA6FF28E36AC47BDA8AB40D47C990", build_type=build_type, build_status=BuildStatus.BUILD_STATUS_SUCCESS,
           build_information="Finished",
           log_location="gs://mlenv/logs/env2.txt", container_image=container),
     Build(version=3, sha1="82ED488F48871082D683D733384134CCB3DB5622", build_type=build_type, build_status=BuildStatus.BUILD_STATUS_FAILURE,
@@ -30,11 +30,28 @@ build_responses = [
 
 class BuildService(builder_pb2_grpc.Builder):
     def BuildEnvironment(self, request, context):
-        if request.user_id != 1:
-            context.abort(grpc.StatusCode.NOT_FOUND, "User not found")
-        # Pick random build from build_responses
-        idx = random.sample(set([0, 1, 2]), 1)
-        build = build_responses[idx[0]]
+        # if request.user_id != 1:
+        #     context.abort(grpc.StatusCode.NOT_FOUND, "User not found")
+        # # Pick random build from build_responses
+        # #idx = random.sample(set([0, 1, 2]), 1)
+        # build = build_responses[idx[0]]
+        container = ContainerImage(repository="gcr.io/deeplearning-platform-release/tf-cpu", tag="latest")
+        build_type = BuildType.BUILD_TYPE_CONTAINER
+        build = Build(
+            build_type=build_type,
+            build_status=BuildStatus.BUILD_STATUS_PENDING,
+            container_image=container,
+        )
+        result = mle.create(
+            entry_point=None,
+            docker_image_bucket_name="news-ml-257304_cloudbuild",
+            docker_base_image="gcr.io/deeplearning-platform-release/base-cpu",
+        )
+        print(result)
+        if result is None:
+            build.build_status = BuildStatus.BUILD_STATUS_FAILURE
+        else:
+            build.build_status = BuildStatus.BUILD_STATUS_SUCCESS
         return BuildEnvironmentResponse(build=build)
 
 
